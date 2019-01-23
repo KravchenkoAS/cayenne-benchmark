@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.apache.cayenne:cayenne-di:4.2.M1-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/cayenne/cayenne-di/4.2.M1-SNAPSHOT/cayenne-di-4.2.M1-20190122.151346-18.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/cayenne/cayenne-di/4.2.M1-SNAPSHOT/cayenne-di-4.2.M1-20190122.151346-18-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/cayenne/cayenne-di/4.2.M1-SNAPSHOT/cayenne-di-4.2.M1-20190122.151346-18-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
