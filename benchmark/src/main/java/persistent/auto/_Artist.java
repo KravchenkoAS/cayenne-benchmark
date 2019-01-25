@@ -28,13 +28,13 @@ public abstract class _Artist extends BaseDataObject {
     public static final String ID_PK_COLUMN = "ID";
 
     public static final DateProperty<LocalDate> DATE_OF_BIRTH = PropertyFactory.createDate("dateOfBirth", LocalDate.class);
-    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
     public static final NumericProperty<Integer> ID = PropertyFactory.createNumeric("id", Integer.class);
+    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
     public static final ListProperty<Painting> PAINTINGS = PropertyFactory.createList("paintings", Painting.class);
 
     protected LocalDate dateOfBirth;
-    protected String name;
     protected Integer id;
+    protected String name;
 
     protected Object paintings;
 
@@ -48,16 +48,6 @@ public abstract class _Artist extends BaseDataObject {
         return this.dateOfBirth;
     }
 
-    public void setName(String name) {
-        beforePropertyWrite("name", this.name, name);
-        this.name = name;
-    }
-
-    public String getName() {
-        beforePropertyRead("name");
-        return this.name;
-    }
-
     public void setId(Integer id) {
         beforePropertyWrite("id", this.id, id);
         this.id = id;
@@ -66,6 +56,16 @@ public abstract class _Artist extends BaseDataObject {
     public Integer getId() {
         beforePropertyRead("id");
         return this.id;
+    }
+
+    public void setName(String name) {
+        beforePropertyWrite("name", this.name, name);
+        this.name = name;
+    }
+
+    public String getName() {
+        beforePropertyRead("name");
+        return this.name;
     }
 
     public void addToPaintings(Painting obj) {
@@ -90,10 +90,10 @@ public abstract class _Artist extends BaseDataObject {
         switch(propName) {
             case "dateOfBirth":
                 return this.dateOfBirth;
-            case "name":
-                return this.name;
             case "id":
                 return this.id;
+            case "name":
+                return this.name;
             case "paintings":
                 return this.paintings;
             default:
@@ -111,11 +111,11 @@ public abstract class _Artist extends BaseDataObject {
             case "dateOfBirth":
                 this.dateOfBirth = (LocalDate)val;
                 break;
-            case "name":
-                this.name = (String)val;
-                break;
             case "id":
                 this.id = (Integer)val;
+                break;
+            case "name":
+                this.name = (String)val;
                 break;
             case "paintings":
                 this.paintings = val;
@@ -137,8 +137,8 @@ public abstract class _Artist extends BaseDataObject {
     protected void writeState(ObjectOutputStream out) throws IOException {
         super.writeState(out);
         out.writeObject(this.dateOfBirth);
-        out.writeObject(this.name);
         out.writeObject(this.id);
+        out.writeObject(this.name);
         out.writeObject(this.paintings);
     }
 
@@ -146,8 +146,8 @@ public abstract class _Artist extends BaseDataObject {
     protected void readState(ObjectInputStream in) throws IOException, ClassNotFoundException {
         super.readState(in);
         this.dateOfBirth = (LocalDate)in.readObject();
-        this.name = (String)in.readObject();
         this.id = (Integer)in.readObject();
+        this.name = (String)in.readObject();
         this.paintings = in.readObject();
     }
 

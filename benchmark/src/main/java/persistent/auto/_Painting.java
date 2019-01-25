@@ -24,38 +24,18 @@ public abstract class _Painting extends BaseDataObject {
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
-    public static final NumericProperty<Integer> ID = PropertyFactory.createNumeric("id", Integer.class);
     public static final NumericProperty<Integer> ARTIST_ID = PropertyFactory.createNumeric("artistId", Integer.class);
     public static final NumericProperty<Integer> GALLERY_ID = PropertyFactory.createNumeric("galleryId", Integer.class);
+    public static final NumericProperty<Integer> ID = PropertyFactory.createNumeric("id", Integer.class);
+    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
     public static final EntityProperty<Artist> ARTIST = PropertyFactory.createEntity("artist", Artist.class);
 
-    protected String name;
-    protected Integer id;
     protected Integer artistId;
     protected Integer galleryId;
+    protected Integer id;
+    protected String name;
 
     protected Object artist;
-
-    public void setName(String name) {
-        beforePropertyWrite("name", this.name, name);
-        this.name = name;
-    }
-
-    public String getName() {
-        beforePropertyRead("name");
-        return this.name;
-    }
-
-    public void setId(Integer id) {
-        beforePropertyWrite("id", this.id, id);
-        this.id = id;
-    }
-
-    public Integer getId() {
-        beforePropertyRead("id");
-        return this.id;
-    }
 
     public void setArtistId(Integer artistId) {
         beforePropertyWrite("artistId", this.artistId, artistId);
@@ -77,6 +57,26 @@ public abstract class _Painting extends BaseDataObject {
         return this.galleryId;
     }
 
+    public void setId(Integer id) {
+        beforePropertyWrite("id", this.id, id);
+        this.id = id;
+    }
+
+    public Integer getId() {
+        beforePropertyRead("id");
+        return this.id;
+    }
+
+    public void setName(String name) {
+        beforePropertyWrite("name", this.name, name);
+        this.name = name;
+    }
+
+    public String getName() {
+        beforePropertyRead("name");
+        return this.name;
+    }
+
     public void setArtist(Artist artist) {
         setToOneTarget("artist", artist, true);
     }
@@ -92,14 +92,14 @@ public abstract class _Painting extends BaseDataObject {
         }
 
         switch(propName) {
-            case "name":
-                return this.name;
-            case "id":
-                return this.id;
             case "artistId":
                 return this.artistId;
             case "galleryId":
                 return this.galleryId;
+            case "id":
+                return this.id;
+            case "name":
+                return this.name;
             case "artist":
                 return this.artist;
             default:
@@ -114,17 +114,17 @@ public abstract class _Painting extends BaseDataObject {
         }
 
         switch (propName) {
-            case "name":
-                this.name = (String)val;
-                break;
-            case "id":
-                this.id = (Integer)val;
-                break;
             case "artistId":
                 this.artistId = (Integer)val;
                 break;
             case "galleryId":
                 this.galleryId = (Integer)val;
+                break;
+            case "id":
+                this.id = (Integer)val;
+                break;
+            case "name":
+                this.name = (String)val;
                 break;
             case "artist":
                 this.artist = val;
@@ -145,20 +145,20 @@ public abstract class _Painting extends BaseDataObject {
     @Override
     protected void writeState(ObjectOutputStream out) throws IOException {
         super.writeState(out);
-        out.writeObject(this.name);
-        out.writeObject(this.id);
         out.writeObject(this.artistId);
         out.writeObject(this.galleryId);
+        out.writeObject(this.id);
+        out.writeObject(this.name);
         out.writeObject(this.artist);
     }
 
     @Override
     protected void readState(ObjectInputStream in) throws IOException, ClassNotFoundException {
         super.readState(in);
-        this.name = (String)in.readObject();
-        this.id = (Integer)in.readObject();
         this.artistId = (Integer)in.readObject();
         this.galleryId = (Integer)in.readObject();
+        this.id = (Integer)in.readObject();
+        this.name = (String)in.readObject();
         this.artist = in.readObject();
     }
 

@@ -10,9 +10,12 @@ import org.apache.cayenne.access.DataDomain;
 import org.apache.cayenne.access.DataNode;
 import org.apache.cayenne.access.translator.select.DefaultSelectTranslator;
 import org.apache.cayenne.access.translator.select.SelectTranslator;
+import org.apache.cayenne.configuration.Constants;
+import org.apache.cayenne.configuration.server.ServerModule;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.dba.DbAdapter;
 import org.apache.cayenne.query.ObjectSelect;
+import org.apache.cayenne.query.SelectQuery;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -23,6 +26,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import persistent.Artist;
 
@@ -42,7 +46,14 @@ public class ReadComponentsBenchmark {
         public void setUp() {
             serverRuntime = ServerRuntime.builder()
                     .addConfig("cayenne-project.xml")
+                    .addModule(binder -> ServerModule.contributeProperties(binder)
+                            .put(Constants.SERVER_CONTEXTS_SYNC_PROPERTY, String.valueOf(false)))
                     .build();
+        }
+
+        @TearDown(Level.Invocation)
+        public void tearDown() {
+            serverRuntime.shutdown();
         }
     }
 
@@ -51,7 +62,8 @@ public class ReadComponentsBenchmark {
 
         ServerRuntime serverRuntime;
         ObjectContext objectContext;
-        ObjectSelect<DataRow> query;
+        //TODO for 4.2 move back to ObjsectSelect
+        SelectQuery<DataRow> query;
         DbAdapter dbAdapter;
 
         @Setup(Level.Invocation)
@@ -60,9 +72,14 @@ public class ReadComponentsBenchmark {
                     .addConfig("cayenne-project.xml")
                     .build();
             objectContext = serverRuntime.newContext();
-            query = ObjectSelect.dataRowQuery(Artist.class);
+            query = SelectQuery.dataRowQuery(Artist.class);
             Collection<DataNode> dataNodes = ((DataDomain)objectContext.getChannel()).getDataNodes();
             dbAdapter = dataNodes.iterator().next().getAdapter();
+        }
+
+        @TearDown(Level.Invocation)
+        public void tearDown() {
+            serverRuntime.shutdown();
         }
     }
 
@@ -78,6 +95,11 @@ public class ReadComponentsBenchmark {
                     .addConfig("cayenne-project.xml")
                     .build();
             objectContext = serverRuntime.newContext();
+        }
+
+        @TearDown(Level.Invocation)
+        public void tearDown() {
+            serverRuntime.shutdown();
         }
     }
 
