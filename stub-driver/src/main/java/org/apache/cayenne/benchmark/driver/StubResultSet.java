@@ -151,7 +151,7 @@ public class StubResultSet implements ResultSet {
 
     @Override
     public String getString(String columnLabel) throws SQLException {
-        return fields.get(columnLabel).toString();
+        return fields.get(columnLabel);
     }
 
     @Override

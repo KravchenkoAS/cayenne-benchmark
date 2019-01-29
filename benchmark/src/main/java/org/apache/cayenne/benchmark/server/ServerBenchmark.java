@@ -3,7 +3,6 @@ package org.apache.cayenne.benchmark.server;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.cayenne.ObjectContext;
-import org.apache.cayenne.ObjectId;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;

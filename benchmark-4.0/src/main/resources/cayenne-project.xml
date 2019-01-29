@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<domain project-version="9">
+	<map name="datamap"/>
+
+	<node name="datanode"
+		 factory="org.apache.cayenne.configuration.server.XMLPoolingDataSourceFactory"
+		 schema-update-strategy="org.apache.cayenne.access.dbsync.SkipSchemaUpdateStrategy"
+		>
+		<data-source>
+			<driver value="org.apache.cayenne.benchmark.driver.Driver"/>
+			<url value="jdbc:mysql://127.0.0.1:3306/cayenne_demo"/>
+			<connectionPool min="1" max="10"/>
+			<login/>
+		</data-source>
+	</node>
+</domain>

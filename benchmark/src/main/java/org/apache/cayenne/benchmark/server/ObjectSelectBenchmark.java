@@ -1,5 +1,6 @@
 package org.apache.cayenne.benchmark.server;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -26,19 +27,25 @@ import persistent.Artist;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Fork(2)
+@State(Scope.Benchmark)
 public class ObjectSelectBenchmark {
+
+    private static ServerRuntime serverRuntime;
+
+    @Setup(Level.Iteration)
+    public void setUp() {
+        serverRuntime = ServerRuntime.builder()
+                .addConfig("cayenne-project.xml")
+                .build();
+    }
 
     @State(Scope.Benchmark)
     public static class BaseSetup {
 
-        ServerRuntime serverRuntime;
         ObjectContext objectContext;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             objectContext = serverRuntime.newContext();
         }
     }
@@ -46,14 +53,10 @@ public class ObjectSelectBenchmark {
     @State(Scope.Benchmark)
     public static class LocalCacheSetup {
 
-        ServerRuntime serverRuntime;
         ObjectContext objectContext;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             objectContext = serverRuntime.newContext();
             ObjectSelect.query(Artist.class)
                     .localCache()
@@ -64,14 +67,10 @@ public class ObjectSelectBenchmark {
     @State(Scope.Benchmark)
     public static class SharedCacheSetup {
 
-        ServerRuntime serverRuntime;
         ObjectContext objectContext;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             objectContext = serverRuntime.newContext();
             ObjectSelect.query(Artist.class)
                     .sharedCache()
@@ -82,14 +81,10 @@ public class ObjectSelectBenchmark {
     @State(Scope.Benchmark)
     public static class CacheGroupsSetup {
 
-        ServerRuntime serverRuntime;
         ObjectContext objectContext;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             objectContext = serverRuntime.newContext();
             ObjectSelect.query(Artist.class)
                     .cacheGroup("test-cache")
@@ -120,7 +115,7 @@ public class ObjectSelectBenchmark {
     public List<Artist> selectWhereAndBenchmark(BaseSetup baseSetup) {
         return ObjectSelect.query(Artist.class)
                 .where(Artist.NAME.eq("a"))
-                .and(Artist.DATE_OF_BIRTH.gt(LocalDate.now()))
+                .and(Artist.DATE_OF_BIRTH.gt(new Date(1000)))
                 .select(baseSetup.objectContext);
     }
 
@@ -128,7 +123,7 @@ public class ObjectSelectBenchmark {
     public List<Artist> selectWhereOrBenchmark(BaseSetup baseSetup) {
         return ObjectSelect.query(Artist.class)
                 .where(Artist.NAME.eq("a"))
-                .or(Artist.DATE_OF_BIRTH.gt(LocalDate.now()))
+                .or(Artist.DATE_OF_BIRTH.gt(new Date(1000)))
                 .select(baseSetup.objectContext);
     }
 
@@ -200,12 +195,6 @@ public class ObjectSelectBenchmark {
         return ObjectSelect.query(Artist.class)
                 .statementFetchSize(1)
                 .select(baseSetup.objectContext);
-    }
-
-    @Benchmark
-    public long selectCountBenchmark(BaseSetup baseSetup) {
-        return ObjectSelect.query(Artist.class)
-                .selectCount(baseSetup.objectContext);
     }
 
     @Benchmark

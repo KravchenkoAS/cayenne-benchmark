@@ -1,6 +1,6 @@
 package org.apache.cayenne.benchmark.server;
 
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -21,230 +21,142 @@ import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import persistent.Artist;
 
-@Warmup(iterations = 4, time = 1)
-@Measurement(iterations = 6, time = 1)
+@Warmup(iterations = 6, time = 2)
+@Measurement(iterations = 8, time = 1)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Fork(2)
+@State(Scope.Benchmark)
 public class UpdateComponentsBenchmark {
+
+    private static ServerRuntime serverRuntime;
+
+    @Setup(Level.Iteration)
+    public void setUp() {
+        serverRuntime = ServerRuntime.builder()
+                .addConfig("cayenne-project.xml")
+                .build();
+    }
+
+    @TearDown(Level.Iteration)
+    public void tearDown() {
+        serverRuntime.shutdown();
+    }
 
     @State(Scope.Benchmark)
     public static class ObjectsSetup {
 
-        ServerRuntime serverRuntime;
         ObjectContext context;
         List<Artist> artists;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             context = serverRuntime.newContext();
             artists = ObjectSelect.query(Artist.class)
                     .select(context);
-        }
-
-        @TearDown(Level.Invocation)
-        public void tearDown() {
-            serverRuntime.shutdown();
         }
     }
 
     @State(Scope.Benchmark)
     public static class SetupForOneObjectOneField {
 
-        ServerRuntime serverRuntime;
         ObjectContext context;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             context = serverRuntime.newContext();
-            List<Artist> artists = ObjectSelect.query(Artist.class)
-                    .select(context);
-            artists.get(0).setName("UpdateName");
-        }
-
-        @TearDown(Level.Invocation)
-        public void tearDown() {
-            serverRuntime.shutdown();
+            List<Artist> artists = getArtistsForUpdateOneField(context, 1);
         }
     }
 
     @State(Scope.Benchmark)
     public static class SetupForOneObjectTwoField {
 
-        ServerRuntime serverRuntime;
         ObjectContext context;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             context = serverRuntime.newContext();
-            List<Artist> artists = ObjectSelect.query(Artist.class)
-                    .select(context);
-            artists.get(0).setName("UpdateName");
-            artists.get(0).setDateOfBirth(LocalDate.of(2000, 2, 2));
-        }
-
-        @TearDown(Level.Invocation)
-        public void tearDown() {
-            serverRuntime.shutdown();
+            List<Artist> artists = getArtistsForUpdateTwoFields(context, 1);
         }
     }
 
     @State(Scope.Benchmark)
     public static class SetupForHundredObjectsOneField {
 
-        ServerRuntime serverRuntime;
         ObjectContext context;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             context = serverRuntime.newContext();
-            List<Artist> artists = ObjectSelect.query(Artist.class)
-                    .select(context);
-            for(int i = 0; i < 100; i++) {
-                artists.get(i).setName("UpdateName" + i);
-            }
-        }
-
-        @TearDown(Level.Invocation)
-        public void tearDown() {
-            serverRuntime.shutdown();
+            List<Artist> artists = getArtistsForUpdateOneField(context, 100);
         }
     }
 
     @State(Scope.Benchmark)
     public static class SetupForHundredObjectsTwoField {
 
-        ServerRuntime serverRuntime;
         ObjectContext context;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             context = serverRuntime.newContext();
-            List<Artist> artists = ObjectSelect.query(Artist.class)
-                    .select(context);
-            for(int i = 0; i < 100; i++) {
-                artists.get(i).setName("UpdateName" + i);
-                artists.get(i).setDateOfBirth(LocalDate.of(i, 2, 2));
-            }
-        }
-
-        @TearDown(Level.Invocation)
-        public void tearDown() {
-            serverRuntime.shutdown();
+            List<Artist> artists = getArtistsForUpdateTwoFields(context, 100);
         }
     }
 
     @State(Scope.Benchmark)
     public static class SetupForAllObjectsOneField {
 
-        ServerRuntime serverRuntime;
         ObjectContext context;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             context = serverRuntime.newContext();
-            List<Artist> artists = ObjectSelect.query(Artist.class)
-                    .select(context);
-            for(int i = 0; i < 1000; i++) {
-                artists.get(i).setName("UpdateName" + i);
-            }
-        }
-
-        @TearDown(Level.Invocation)
-        public void tearDown() {
-            serverRuntime.shutdown();
+            List<Artist> artists = getArtistsForUpdateOneField(context, 1000);
         }
     }
 
     @State(Scope.Benchmark)
     public static class SetupForAllObjectsTwoField {
 
-        ServerRuntime serverRuntime;
         ObjectContext context;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .build();
             context = serverRuntime.newContext();
-            List<Artist> artists = ObjectSelect.query(Artist.class)
-                    .select(context);
-            for(int i = 0; i < 1000; i++) {
-                artists.get(i).setName("UpdateName" + i);
-                artists.get(i).setDateOfBirth(LocalDate.of(i, 2, 2));
-            }
-        }
-
-        @TearDown(Level.Invocation)
-        public void tearDown() {
-            serverRuntime.shutdown();
+            List<Artist> artists =  getArtistsForUpdateTwoFields(context, 1000);
         }
     }
 
     @Benchmark
     public List<Artist> updateOneObject(ObjectsSetup objectsSetup) {
-        objectsSetup.artists.get(0).setName("UpdateName");
-        return objectsSetup.artists;
+        return updateArtistsName(objectsSetup.artists, 1);
     }
 
     @Benchmark
     public List<Artist> updateOneObjectTwoFields(ObjectsSetup objectsSetup) {
-        objectsSetup.artists.get(0).setName("UpdateName");
-        objectsSetup.artists.get(0).setDateOfBirth(LocalDate.of(2000, 2, 2));
-        return objectsSetup.artists;
+        return updateArtistsNameAndDate(objectsSetup.artists,1);
     }
 
     @Benchmark
     public List<Artist> updateHundredObject(ObjectsSetup objectsSetup) {
-        for(int i = 0; i < 100; i++) {
-            objectsSetup.artists.get(i).setName("UpdateName" + i);
-        }
-        return objectsSetup.artists;
+        return updateArtistsName(objectsSetup.artists, 100);
     }
 
     @Benchmark
     public List<Artist> updateHundredObjectTwoFields(ObjectsSetup objectsSetup) {
-        for(int i = 0; i < 100; i++) {
-            objectsSetup.artists.get(i).setName("UpdateName" + i);
-            objectsSetup.artists.get(i).setDateOfBirth(LocalDate.of(i, 2, 2));
-        }
-        return objectsSetup.artists;
+        return updateArtistsNameAndDate(objectsSetup.artists,100);
     }
 
     @Benchmark
     public List<Artist> updateAllObject(ObjectsSetup objectsSetup) {
-        for(int i = 0; i < 1000; i++) {
-            objectsSetup.artists.get(i).setName("UpdateName" + i);
-        }
-        return objectsSetup.artists;
+        return updateArtistsName(objectsSetup.artists, 1000);
     }
 
     @Benchmark
     public List<Artist> updateAllObjectTwoFields(ObjectsSetup objectsSetup) {
-        for(int i = 0; i < 1000; i++) {
-            objectsSetup.artists.get(i).setName("UpdateName" + i);
-            objectsSetup.artists.get(i).setDateOfBirth(LocalDate.of(i, 2, 2));
-        }
-        return objectsSetup.artists;
+        return updateArtistsNameAndDate(objectsSetup.artists,1000);
     }
 
     @Benchmark
@@ -275,5 +187,28 @@ public class UpdateComponentsBenchmark {
     @Benchmark
     public void commit1000ObjTwoField(SetupForAllObjectsTwoField setupForAllObjectsTwoField) {
         setupForAllObjectsTwoField.context.commitChanges();
+    }
+
+    private static List<Artist> updateArtistsName(List<Artist> artists, int size) {
+        for(int i = 0; i < size; i++) {
+            artists.get(i).setName("UpdateName" + i);
+        }
+        return artists;
+    }
+
+    private static List<Artist> updateArtistsNameAndDate(List<Artist> artists, int size) {
+        for(int i = 0; i < size; i++) {
+            artists.get(i).setName("UpdateName" + i);
+            artists.get(i).setDateOfBirth(new Date(1000));
+        }
+        return artists;
+    }
+
+    private static List<Artist> getArtistsForUpdateOneField(ObjectContext context, int size) {
+        return updateArtistsName(ObjectSelect.query(Artist.class).select(context), size);
+    }
+
+    private static List<Artist> getArtistsForUpdateTwoFields(ObjectContext context, int size) {
+        return updateArtistsNameAndDate(ObjectSelect.query(Artist.class).select(context), size);
     }
 }

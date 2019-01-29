@@ -8,6 +8,8 @@
     <modules>
         <module>stub-driver</module>
         <module>benchmark</module>
+        <module>benchmark-4.0</module>
+        <module>benchmark-4.2</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -5,11 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.apache.cayenne.BaseDataObject;
-import org.apache.cayenne.exp.property.EntityProperty;
-import org.apache.cayenne.exp.property.NumericProperty;
-import org.apache.cayenne.exp.property.PropertyFactory;
-import org.apache.cayenne.exp.property.StringProperty;
-
+import org.apache.cayenne.exp.Property;
 import persistent.Artist;
 
 /**
@@ -24,11 +20,11 @@ public abstract class _Painting extends BaseDataObject {
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final NumericProperty<Integer> ARTIST_ID = PropertyFactory.createNumeric("artistId", Integer.class);
-    public static final NumericProperty<Integer> GALLERY_ID = PropertyFactory.createNumeric("galleryId", Integer.class);
-    public static final NumericProperty<Integer> ID = PropertyFactory.createNumeric("id", Integer.class);
-    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
-    public static final EntityProperty<Artist> ARTIST = PropertyFactory.createEntity("artist", Artist.class);
+    public static final Property<Integer> ARTIST_ID = Property.create("artistId", Integer.class);
+    public static final Property<Integer> GALLERY_ID = Property.create("galleryId", Integer.class);
+    public static final Property<Integer> ID = Property.create("id", Integer.class);
+    public static final Property<String> NAME = Property.create("name", String.class);
+    public static final Property<Artist> ARTIST = Property.create("artist", Artist.class);
 
     protected Integer artistId;
     protected Integer galleryId;

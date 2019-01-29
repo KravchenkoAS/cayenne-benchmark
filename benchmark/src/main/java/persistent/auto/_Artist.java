@@ -3,15 +3,11 @@ package persistent.auto;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
 
 import org.apache.cayenne.BaseDataObject;
-import org.apache.cayenne.exp.property.DateProperty;
-import org.apache.cayenne.exp.property.ListProperty;
-import org.apache.cayenne.exp.property.NumericProperty;
-import org.apache.cayenne.exp.property.PropertyFactory;
-import org.apache.cayenne.exp.property.StringProperty;
+import org.apache.cayenne.exp.Property;
 
 import persistent.Painting;
 
@@ -27,23 +23,23 @@ public abstract class _Artist extends BaseDataObject {
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final DateProperty<LocalDate> DATE_OF_BIRTH = PropertyFactory.createDate("dateOfBirth", LocalDate.class);
-    public static final NumericProperty<Integer> ID = PropertyFactory.createNumeric("id", Integer.class);
-    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
-    public static final ListProperty<Painting> PAINTINGS = PropertyFactory.createList("paintings", Painting.class);
+    public static final Property<Date> DATE_OF_BIRTH = Property.create("dateOfBirth", Date.class);
+    public static final Property<Integer> ID = Property.create("id", Integer.class);
+    public static final Property<String> NAME = Property.create("name", String.class);
+    public static final Property<List<Painting>> PAINTINGS = Property.create("paintings", List.class);
 
-    protected LocalDate dateOfBirth;
+    protected Date dateOfBirth;
     protected Integer id;
     protected String name;
 
     protected Object paintings;
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public void setDateOfBirth(Date dateOfBirth) {
         beforePropertyWrite("dateOfBirth", this.dateOfBirth, dateOfBirth);
         this.dateOfBirth = dateOfBirth;
     }
 
-    public LocalDate getDateOfBirth() {
+    public Date getDateOfBirth() {
         beforePropertyRead("dateOfBirth");
         return this.dateOfBirth;
     }
@@ -109,7 +105,7 @@ public abstract class _Artist extends BaseDataObject {
 
         switch (propName) {
             case "dateOfBirth":
-                this.dateOfBirth = (LocalDate)val;
+                this.dateOfBirth = (Date)val;
                 break;
             case "id":
                 this.id = (Integer)val;
@@ -145,7 +141,7 @@ public abstract class _Artist extends BaseDataObject {
     @Override
     protected void readState(ObjectInputStream in) throws IOException, ClassNotFoundException {
         super.readState(in);
-        this.dateOfBirth = (LocalDate)in.readObject();
+        this.dateOfBirth = (Date)in.readObject();
         this.id = (Integer)in.readObject();
         this.name = (String)in.readObject();
         this.paintings = in.readObject();

@@ -6,9 +6,7 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 import org.apache.cayenne.BaseDataObject;
-import org.apache.cayenne.exp.property.ListProperty;
-import org.apache.cayenne.exp.property.PropertyFactory;
-import org.apache.cayenne.exp.property.StringProperty;
+import org.apache.cayenne.exp.Property;
 
 import persistent.Painting;
 
@@ -24,8 +22,8 @@ public abstract class _Gallery extends BaseDataObject {
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
-    public static final ListProperty<Painting> PAINTINGS = PropertyFactory.createList("paintings", Painting.class);
+    public static final Property<String> NAME = Property.create("name", String.class);
+    public static final Property<List<Painting>> PAINTINGS = Property.create("paintings", List.class);
 
     protected String name;
 

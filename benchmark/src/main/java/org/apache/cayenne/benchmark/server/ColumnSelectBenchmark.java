@@ -1,5 +1,6 @@
 package org.apache.cayenne.benchmark.server;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +51,7 @@ public class ColumnSelectBenchmark {
     }
 
     @Benchmark
-    public List<LocalDate> columnQueryObjBenchmark(BaseSetup baseSetup) {
+    public List<Date> columnQueryObjBenchmark(BaseSetup baseSetup) {
         return ObjectSelect.columnQuery(Artist.class, Artist.DATE_OF_BIRTH)
                 .select(baseSetup.objectContext);
     }

@@ -59,7 +59,7 @@ public class DataObjects {
         Map<Integer, Map<String, Object>> paintings = new HashMap<>();
 
         Map picasso = createArtists("a").get(0);
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 1000; i++) {
             Map<String, Object> painitng = new LinkedHashMap<>();
             painitng.put("NAME", name);
             painitng.put("ARTIST_ID", picasso.get("ID"));
