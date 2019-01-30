@@ -24,6 +24,7 @@ public class StubResultSet implements ResultSet {
     private int row = -1;
     private Map<Integer, String> fields = new LinkedHashMap<>();
     private Map<Integer, Map<String, Object>> rows = new HashMap<>();
+    private Map<String, String> labelsForColumns = new HashMap<>();
     private String prefetch;
 
     public StubResultSet() {
@@ -32,6 +33,12 @@ public class StubResultSet implements ResultSet {
     public StubResultSet(Map<Integer, String> fields, Map<Integer, Map<String, Object>> rows) {
         this.rows = rows;
         this.fields = fields;
+    }
+
+    public StubResultSet(StubResultSet rs, Map<String, String> labelsForColumns) {
+        this.rows = rs.rows;
+        this.fields = rs.fields;
+        this.labelsForColumns = labelsForColumns;
     }
 
     @Override
@@ -151,7 +158,10 @@ public class StubResultSet implements ResultSet {
 
     @Override
     public String getString(String columnLabel) throws SQLException {
-        return fields.get(columnLabel);
+        if(rows.get(row).get(columnLabel) == null) {
+            return String.valueOf(rows.get(row).get(labelsForColumns.get(columnLabel)));
+        }
+        return String.valueOf(rows.get(row).get(columnLabel));
     }
 
     @Override
@@ -171,7 +181,10 @@ public class StubResultSet implements ResultSet {
 
     @Override
     public int getInt(String columnLabel) throws SQLException {
-        return 0;
+        if(rows.get(row).get(columnLabel) == null) {
+            return (Integer) rows.get(row).get(labelsForColumns.get(columnLabel));
+        }
+        return (Integer) rows.get(row).get(columnLabel);
     }
 
     @Override
@@ -201,6 +214,9 @@ public class StubResultSet implements ResultSet {
 
     @Override
     public Date getDate(String columnLabel) throws SQLException {
+        if(rows.get(row).get(columnLabel) == null) {
+            return Date.valueOf((LocalDate)rows.get(row).get(labelsForColumns.get(columnLabel)));
+        }
         return Date.valueOf((LocalDate)rows.get(row).get(columnLabel));
     }
 

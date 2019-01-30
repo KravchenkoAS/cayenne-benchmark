@@ -309,8 +309,15 @@ public class StubPreparedStatement extends StubStatement implements PreparedStat
         String table = "";
         String prefetch = "";
         String[] words = sql.split(" ");
+        Map<String, String> labelsForColumns = new HashMap<>();
 
         for (int i = 0; i < words.length; i++) {
+            if("AS".equalsIgnoreCase(words[i])) {
+                String label = words[i + 1].replaceAll(",", "");
+                String[] columnSplit = words[i - 1].split("\\.");
+                labelsForColumns.put(label, columnSplit[columnSplit.length - 1]);
+            }
+
             if ("FROM".equalsIgnoreCase(words[i])) {
                 String database = words[i + 1];
                 String[] split = database.split("\\.");
@@ -326,7 +333,7 @@ public class StubPreparedStatement extends StubStatement implements PreparedStat
 
         ResultSet resultSet = DataObjects.getObjects().get(table.toUpperCase());
 
-        return resultSet != null ? resultSet : new StubResultSet();
+        return resultSet != null ? new StubResultSet((StubResultSet) resultSet, labelsForColumns) : new StubResultSet();
     }
 
     @Override

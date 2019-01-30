@@ -10,6 +10,7 @@
         <module>benchmark-4.1</module>
         <module>benchmark-4.0</module>
         <module>benchmark-4.2</module>
+        <module>hibernate-benchmark</module>
     </modules>
     <packaging>pom</packaging>
 
