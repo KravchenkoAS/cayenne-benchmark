@@ -8,16 +8,14 @@ import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
+import java.sql.Date;
 import java.sql.NClob;
 import java.sql.Ref;
 import java.sql.RowId;
 import java.sql.SQLXML;
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class StubResultSet implements ResultSet {
 
@@ -28,6 +26,7 @@ public class StubResultSet implements ResultSet {
     private String prefetch;
 
     public StubResultSet() {
+        rows.put(0, Collections.singletonMap("ID", new Random().nextInt()));
     }
 
     public StubResultSet(Map<Integer, String> fields, Map<Integer, Map<String, Object>> rows) {

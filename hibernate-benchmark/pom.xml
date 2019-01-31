@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>5.4.1.Final</version>
+            <version>${hibernate.version}</version>
         </dependency>
     </dependencies>
 
@@ -42,6 +42,8 @@
             JMH version to use with this project.
           -->
         <jmh.version>1.21</jmh.version>
+
+        <hibernate.version>5.4.1.Final</hibernate.version>
 
         <!--
             Java source/target to use for compilation.

@@ -37,7 +37,7 @@ public class StubStatement implements Statement {
 
     @Override
     public int getMaxRows() throws SQLException {
-        return 0;
+        return 1;
     }
 
     @Override

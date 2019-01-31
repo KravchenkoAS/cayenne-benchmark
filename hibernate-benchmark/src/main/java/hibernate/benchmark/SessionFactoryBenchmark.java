@@ -8,6 +8,7 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.service.ServiceRegistry;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.concurrent.TimeUnit;
 
@@ -20,10 +21,12 @@ import java.util.concurrent.TimeUnit;
 public class SessionFactoryBenchmark {
 
     private SessionFactory sessionFactory;
+    private Session session;
 
     @Setup(Level.Iteration)
     public void setUp() {
         sessionFactory = HibernateUtil.getSessionFactory();
+        session = sessionFactory.openSession();
     }
 
     @Benchmark
@@ -35,7 +38,13 @@ public class SessionFactoryBenchmark {
     }
 
     @Benchmark
-    public Session getCurrentSession() {
-        return sessionFactory.getCurrentSession();
+    public Session openSession() {
+        return sessionFactory.openSession();
+    }
+
+    @Benchmark
+    public void closeSession(Blackhole blackhole) {
+        session.close();
+        blackhole.consume(session);
     }
 }

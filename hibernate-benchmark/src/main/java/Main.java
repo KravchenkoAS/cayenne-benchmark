@@ -1,38 +1,31 @@
 import hibernate.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 import persistent.Artist;
 
-import javax.persistence.EntityManager;
+import java.sql.Date;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
         SessionFactory factory = HibernateUtil.getSessionFactory();
 
-        Session session = factory.getCurrentSession();
-
+        Session session = factory.openSession();
+        List<Artist> artists = session.createQuery("From Artist", Artist.class).getResultList();
         try {
-
-            // All the action with DB via Hibernate
-            // must be located in one transaction.
-            // Start Transaction.
-            session.getTransaction().begin();
-
-            List<Artist> artists = session.createQuery("From Artist", Artist.class)
-                    .getResultList();
-
-            for (Artist artist : artists) {
-                System.out.println("Emp: " + artist.getName());
+            session.beginTransaction();
+            for(int i = 0; i < artists.size(); i++) {
+                artists.get(i).setName("test");
+                session.saveOrUpdate(artists.get(i));
             }
-
-            // Commit data.
             session.getTransaction().commit();
         } catch (Exception e) {
             e.printStackTrace();
             // Rollback in case of an error occurred.
             session.getTransaction().rollback();
+        }
+        finally {
+            session.close();
         }
     }
 }

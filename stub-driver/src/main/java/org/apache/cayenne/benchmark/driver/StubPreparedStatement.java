@@ -36,7 +36,7 @@ public class StubPreparedStatement extends StubStatement implements PreparedStat
 
     @Override
     public int executeUpdate() throws SQLException {
-        return 0;
+        return 1;
     }
 
     @Override
@@ -358,7 +358,7 @@ public class StubPreparedStatement extends StubStatement implements PreparedStat
 
     @Override
     public int getMaxRows() throws SQLException {
-        return 0;
+        return 1;
     }
 
     @Override
