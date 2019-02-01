@@ -1,7 +1,7 @@
 package org.apache.cayenne.benchmark.driver;
 
+import java.sql.Date;
 import java.sql.ResultSet;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class DataObjects {
 
         for (int i = 1; i <= 1000; i++) {
             Map<String, Object> artist = new LinkedHashMap<>();
-            artist.put("DATE_OF_BIRTH", LocalDate.now());
+            artist.put("DATE_OF_BIRTH", new Date(1000));
             artist.put("NAME", name);
             artist.put("ID", i);
             artists.put(i - 1 , artist);

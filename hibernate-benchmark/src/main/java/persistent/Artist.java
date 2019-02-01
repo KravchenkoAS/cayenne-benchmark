@@ -10,14 +10,16 @@ import java.sql.Date;
 public class Artist {
 
     @Column(name = "DATE_OF_BIRTH")
+//    @Basic( fetch = FetchType.LAZY )
     private Date dateOfBirth;
 
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "NAME")
+//    @Basic( fetch = FetchType.LAZY )
     private String name;
 
 

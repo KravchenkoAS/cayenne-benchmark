@@ -1,6 +1,7 @@
 package hibernate.benchmark;
 
 import hibernate.util.HibernateUtil;
+import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -10,6 +11,7 @@ import persistent.Artist;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 @Warmup(iterations = 5, time = 2)
 @Measurement(iterations = 6, time = 1)
@@ -69,6 +71,16 @@ public class ReadingBenchmark {
     }
 
     @Benchmark
+    public ScrollableResults getScrollableResults(QuerySetup querySetup) {
+        return querySetup.query.scroll();
+    }
+
+    @Benchmark
+    public Stream<Artist> getStream(QuerySetup querySetup) {
+        return querySetup.query.stream();
+    }
+
+    @Benchmark
     public List<Artist> getResultList(QuerySetup querySetup) {
         return querySetup.query.getResultList();
     }
@@ -94,5 +106,15 @@ public class ReadingBenchmark {
         List<Artist> artists = query.getResultList();
         session.close();
         return artists;
+    }
+
+    @Benchmark
+    public Stream<Artist> fullStreamExecution() {
+        Session session = sessionFactory.openSession();
+        Query<Artist> query = session
+                .createQuery("From Artist", Artist.class);
+        Stream<Artist> stream = query.stream();
+        session.close();
+        return stream;
     }
 }

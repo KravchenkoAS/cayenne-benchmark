@@ -8,14 +8,17 @@ import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.Date;
 import java.sql.NClob;
 import java.sql.Ref;
 import java.sql.RowId;
 import java.sql.SQLXML;
 import java.sql.*;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class StubResultSet implements ResultSet {
 
@@ -124,10 +127,10 @@ public class StubResultSet implements ResultSet {
     @Override
     public Date getDate(int columnIndex) throws SQLException {
         if (columnIndex == 0 || columnIndex > fields.size()) {
-            return Date.valueOf(LocalDate.now());
+            return new Date(1000);
         }
 
-        return Date.valueOf((LocalDate)rows.get(row).get(fields.get(columnIndex)));
+        return (Date) rows.get(row).get(fields.get(columnIndex));
     }
 
     @Override
@@ -214,9 +217,9 @@ public class StubResultSet implements ResultSet {
     @Override
     public Date getDate(String columnLabel) throws SQLException {
         if(rows.get(row).get(columnLabel) == null) {
-            return Date.valueOf((LocalDate)rows.get(row).get(labelsForColumns.get(columnLabel)));
+            return (Date) rows.get(row).get(labelsForColumns.get(columnLabel));
         }
-        return Date.valueOf((LocalDate)rows.get(row).get(columnLabel));
+        return (Date) rows.get(row).get(columnLabel);
     }
 
     @Override
