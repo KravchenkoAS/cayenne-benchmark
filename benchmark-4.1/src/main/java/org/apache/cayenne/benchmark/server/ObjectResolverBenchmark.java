@@ -47,7 +47,7 @@ public class ObjectResolverBenchmark {
         descriptor = objectContext.getEntityResolver().getClassDescriptor("Painting");
     }
 
-    @TearDown(Level.Invocation)
+    @TearDown(Level.Iteration)
     public void tearDown() {
         serverRuntime.shutdown();
     }

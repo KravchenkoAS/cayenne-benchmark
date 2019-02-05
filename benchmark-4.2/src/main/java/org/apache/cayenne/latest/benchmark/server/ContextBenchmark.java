@@ -10,11 +10,8 @@ import org.apache.cayenne.access.DataRowStoreFactory;
 import org.apache.cayenne.access.ObjectStore;
 import org.apache.cayenne.cache.NestedQueryCache;
 import org.apache.cayenne.cache.QueryCache;
-import org.apache.cayenne.configuration.Constants;
 import org.apache.cayenne.configuration.ObjectStoreFactory;
-import org.apache.cayenne.configuration.server.ServerModule;
 import org.apache.cayenne.configuration.server.ServerRuntime;
-import org.apache.cayenne.event.EventManager;
 import org.apache.cayenne.tx.TransactionFactory;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -26,6 +23,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 @Warmup(iterations = 5, time = 2)
@@ -57,6 +55,11 @@ public class ContextBenchmark {
         snapshotCache = (dataDomain.isSharedCacheEnabled())
                 ? dataDomain.getSharedSnapshotCache()
                 : dataRowStoreFactory.createDataRowStore(dataDomain.getName());
+    }
+
+    @TearDown(Level.Iteration)
+    public void tearDown() {
+        serverRuntime.shutdown();
     }
 
     @Benchmark

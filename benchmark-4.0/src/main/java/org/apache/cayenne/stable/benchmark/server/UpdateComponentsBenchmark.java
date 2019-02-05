@@ -34,12 +34,22 @@ import persistent.Artist;
 @State(Scope.Benchmark)
 public class UpdateComponentsBenchmark {
 
+    private static final int DEFAULT_OBJECTS_NUMBER = 1;
+    private static int objectsNumber;
+    static {
+        String numberParam = System.getProperty("objectsNumber");
+        objectsNumber = numberParam != null ? Integer.valueOf(numberParam) : DEFAULT_OBJECTS_NUMBER;
+    }
+
     private static ServerRuntime serverRuntime;
 
     @Setup(Level.Iteration)
     public void setUp() {
         serverRuntime = ServerRuntime.builder()
                 .addConfig("cayenne-project.xml")
+                .addModule(binder -> ServerModule.contributeProperties(binder)
+                        .put(Constants.SERVER_CONTEXTS_SYNC_PROPERTY, String.valueOf(false)))
+                .addModule(binder -> binder.bind(EventManager.class).toInstance(new NoopEventManager()))
                 .build();
     }
 
@@ -63,157 +73,66 @@ public class UpdateComponentsBenchmark {
     }
 
     @State(Scope.Benchmark)
-    public static class SetupForOneObjectOneField {
-
+    public static class SetupOneField {
         ObjectContext context;
 
         @Setup(Level.Invocation)
         public void setUp() {
             context = serverRuntime.newContext();
-            List<Artist> artists = getArtistsForUpdateOneField(context, 1);
+            List<Artist> artists = getArtistsForUpdateOneField(context, objectsNumber);
         }
     }
 
     @State(Scope.Benchmark)
-    public static class SetupForOneObjectTwoField {
-
+    public static class SetupTwoField {
         ObjectContext context;
 
         @Setup(Level.Invocation)
         public void setUp() {
             context = serverRuntime.newContext();
-            List<Artist> artists = getArtistsForUpdateTwoFields(context, 1);
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class SetupForHundredObjectsOneField {
-
-        ObjectContext context;
-
-        @Setup(Level.Invocation)
-        public void setUp() {
-            context = serverRuntime.newContext();
-            List<Artist> artists = getArtistsForUpdateOneField(context, 100);
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class SetupForHundredObjectsTwoField {
-
-        ObjectContext context;
-
-        @Setup(Level.Invocation)
-        public void setUp() {
-            context = serverRuntime.newContext();
-            List<Artist> artists = getArtistsForUpdateTwoFields(context, 100);
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class SetupForAllObjectsOneField {
-
-        ObjectContext context;
-
-        @Setup(Level.Invocation)
-        public void setUp() {
-            context = serverRuntime.newContext();
-            List<Artist> artists = getArtistsForUpdateOneField(context, 1000);
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class SetupForAllObjectsTwoField {
-
-        ObjectContext context;
-
-        @Setup(Level.Invocation)
-        public void setUp() {
-            context = serverRuntime.newContext();
-            List<Artist> artists =  getArtistsForUpdateTwoFields(context, 1000);
+            List<Artist> artists = getArtistsForUpdateTwoFields(context, objectsNumber);
         }
     }
 
     @Benchmark
-    public List<Artist> updateOneObject(ObjectsSetup objectsSetup) {
-        return updateArtistsName(objectsSetup.artists, 1);
+    public List<Artist> updateOneField(ObjectsSetup objectsSetup) {
+        return updateArtists(objectsSetup.artists, objectsNumber, false);
     }
 
     @Benchmark
-    public List<Artist> updateOneObjectTwoFields(ObjectsSetup objectsSetup) {
-        return updateArtistsNameAndDate(objectsSetup.artists,1);
+    public List<Artist> updateTwoFields(ObjectsSetup objectsSetup) {
+        return updateArtists(objectsSetup.artists, objectsNumber, true);
     }
 
     @Benchmark
-    public List<Artist> updateHundredObject(ObjectsSetup objectsSetup) {
-        return updateArtistsName(objectsSetup.artists, 100);
+    public void commitOneField(SetupOneField setupOneField) {
+        setupOneField.context.commitChanges();
     }
 
     @Benchmark
-    public List<Artist> updateHundredObjectTwoFields(ObjectsSetup objectsSetup) {
-        return updateArtistsNameAndDate(objectsSetup.artists,100);
+    public void commitTwoFields(SetupTwoField setupTwoField) {
+        setupTwoField.context.commitChanges();
     }
 
-    @Benchmark
-    public List<Artist> updateAllObject(ObjectsSetup objectsSetup) {
-        return updateArtistsName(objectsSetup.artists, 1000);
-    }
-
-    @Benchmark
-    public List<Artist> updateAllObjectTwoFields(ObjectsSetup objectsSetup) {
-        return updateArtistsNameAndDate(objectsSetup.artists,1000);
-    }
-
-    @Benchmark
-    public void commitOneObjOneField(SetupForOneObjectOneField setupForOneObjectOneField) {
-        setupForOneObjectOneField.context.commitChanges();
-    }
-
-    @Benchmark
-    public void commitOneObjTwoField(SetupForOneObjectTwoField setupForOneObjectTwoField) {
-        setupForOneObjectTwoField.context.commitChanges();
-    }
-
-    @Benchmark
-    public void commit100ObjOneField(SetupForHundredObjectsOneField setupForHundredObjectsOneField) {
-        setupForHundredObjectsOneField.context.commitChanges();
-    }
-
-    @Benchmark
-    public void commit100ObjTwoField(SetupForHundredObjectsTwoField setupForHundredObjectsTwoField) {
-        setupForHundredObjectsTwoField.context.commitChanges();
-    }
-
-    @Benchmark
-    public void commit1000ObjOneField(SetupForAllObjectsOneField setupForAllObjectsOneField) {
-        setupForAllObjectsOneField.context.commitChanges();
-    }
-
-    @Benchmark
-    public void commit1000ObjTwoField(SetupForAllObjectsTwoField setupForAllObjectsTwoField) {
-        setupForAllObjectsTwoField.context.commitChanges();
-    }
-
-    private static List<Artist> updateArtistsName(List<Artist> artists, int size) {
+    private static List<Artist> updateArtists(List<Artist> artists, int size, boolean updateDate) {
+        if(artists.size() < size) {
+            throw new RuntimeException("ObjectsNumber can't be more than collection's size");
+        }
         for(int i = 0; i < size; i++) {
-            artists.get(i).setName("UpdateName" + i);
-        }
-        return artists;
-    }
-
-    private static List<Artist> updateArtistsNameAndDate(List<Artist> artists, int size) {
-        for(int i = 0; i < size; i++) {
-            artists.get(i).setName("UpdateName" + i);
-            artists.get(i).setDateOfBirth(new Date(1000));
+            Artist artist = artists.get(i);
+            artist.setName("UpdateName" + i);
+            if(updateDate) {
+                artist.setDateOfBirth(new Date(1000));
+            }
         }
         return artists;
     }
 
     private static List<Artist> getArtistsForUpdateOneField(ObjectContext context, int size) {
-        return updateArtistsName(ObjectSelect.query(Artist.class).select(context), size);
+        return updateArtists(ObjectSelect.query(Artist.class).select(context), size, false);
     }
 
     private static List<Artist> getArtistsForUpdateTwoFields(ObjectContext context, int size) {
-        return updateArtistsNameAndDate(ObjectSelect.query(Artist.class).select(context), size);
+        return updateArtists(ObjectSelect.query(Artist.class).select(context), size, true);
     }
 }

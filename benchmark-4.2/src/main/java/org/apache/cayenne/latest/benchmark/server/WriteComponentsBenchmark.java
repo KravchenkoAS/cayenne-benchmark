@@ -1,6 +1,8 @@
 package org.apache.cayenne.latest.benchmark.server;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.cayenne.ObjectContext;
@@ -26,6 +28,13 @@ import persistent.Artist;
 @Fork(2)
 @State(Scope.Benchmark)
 public class WriteComponentsBenchmark {
+
+    private static final int DEFAULT_OBJECTS_NUMBER = 1;
+    private static int objectsNumber;
+    static {
+        String numberParam = System.getProperty("objectsNumber");
+        objectsNumber = numberParam != null ? Integer.valueOf(numberParam) : DEFAULT_OBJECTS_NUMBER;
+    }
 
     private static ServerRuntime serverRuntime;
 
@@ -56,12 +65,12 @@ public class WriteComponentsBenchmark {
     public static class ObjectSetup {
 
         ObjectContext objectContext;
-        Artist artist;
+        List<Artist> artists;
 
         @Setup(Level.Invocation)
         public void setUp() {
             objectContext = serverRuntime.newContext();
-            artist = objectContext.newObject(Artist.class);
+            artists = createArtists(objectContext, false);
         }
     }
 
@@ -69,29 +78,13 @@ public class WriteComponentsBenchmark {
     public static class ObjectSetupWithFields {
 
         ObjectContext objectContext;
+        List<Artist> artists;
 
         @Setup(Level.Invocation)
         public void setUp() {
             objectContext = serverRuntime.newContext();
-            Artist artist = objectContext.newObject(Artist.class);
-            setArtistsFields(artist, "Test", new Date(1000));
+            artists = createArtists(objectContext, true);
         }
-    }
-
-    @State(Scope.Benchmark)
-    public static class SetupWithManyObjects {
-
-        ObjectContext objectContext;
-
-        @Setup(Level.Invocation)
-        public void setUp() {
-            objectContext = serverRuntime.newContext();
-            for(int i = 0; i < 100; i++) {
-                Artist artist = objectContext.newObject(Artist.class);
-                setArtistsFields(artist, "Test" + i, new Date(1000));
-            }
-        }
-
     }
 
     @Benchmark
@@ -100,14 +93,17 @@ public class WriteComponentsBenchmark {
     }
 
     @Benchmark
-    public Artist objectCreation(ContextSetup contextSetup) {
-        return contextSetup.objectContext.newObject(Artist.class);
+    public void objectsCreation(ContextSetup contextSetup) {
+        for(int i = 0; i < objectsNumber; i++) {
+            Artist artist = contextSetup.objectContext.newObject(Artist.class);
+        }
     }
 
     @Benchmark
-    public Artist settingFields(ObjectSetup objectSetup) {
-        setArtistsFields(objectSetup.artist, "test", new Date(1000));
-        return objectSetup.artist;
+    public List<Artist> settingFields(ObjectSetup objectSetup) {
+        objectSetup.artists.forEach(artist ->
+                setArtistsFields(artist, "test", new Date(1000)));
+        return objectSetup.artists;
     }
 
     @Benchmark
@@ -117,16 +113,24 @@ public class WriteComponentsBenchmark {
 
     @Benchmark
     public void totalExecution() {
-        ObjectContext context = serverRuntime
-                .newContext();
-        Artist artist = context.newObject(Artist.class);
-        setArtistsFields(artist, "test", new Date(1000));
+        ObjectContext context = serverRuntime.newContext();
+        for(int i = 0; i < objectsNumber; i++) {
+            Artist artist = context.newObject(Artist.class);
+            setArtistsFields(artist, "test", new Date(1000));
+        }
         context.commitChanges();
     }
 
-    @Benchmark
-    public void commitForManyObjects(SetupWithManyObjects setupWithManyObjects) {
-        setupWithManyObjects.objectContext.commitChanges();
+    private static List<Artist> createArtists(ObjectContext context, boolean setFields) {
+        List<Artist> artists = new ArrayList<>();
+        for(int i = 0; i < objectsNumber; i++) {
+            Artist artist = context.newObject(Artist.class);
+            if(setFields) {
+                setArtistsFields(artist, "test" + i, new Date(i + 1000));
+            }
+            artists.add(artist);
+        }
+        return artists;
     }
 
     private static void setArtistsFields(Artist artist, String name, Date date) {

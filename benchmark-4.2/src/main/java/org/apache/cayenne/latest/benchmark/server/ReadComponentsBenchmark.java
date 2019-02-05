@@ -56,7 +56,6 @@ public class ReadComponentsBenchmark {
     public static class QuerySetup {
 
         ObjectContext objectContext;
-        //TODO for 4.2 move back to ObjsectSelect
         SelectQuery<DataRow> query;
         DbAdapter dbAdapter;
 

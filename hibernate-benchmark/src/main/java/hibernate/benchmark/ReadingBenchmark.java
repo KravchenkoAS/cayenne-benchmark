@@ -4,6 +4,7 @@ import hibernate.util.HibernateUtil;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.Query;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -116,5 +117,16 @@ public class ReadingBenchmark {
         Stream<Artist> stream = query.stream();
         session.close();
         return stream;
+    }
+
+    @Benchmark
+    public List<Artist> fullReadOnlyExecution() {
+        Session session = sessionFactory.openSession();
+        Query<Artist> query = session
+                .createQuery("From Artist", Artist.class)
+                .setHint(QueryHints.HINT_READONLY, true);
+        List<Artist> artists = query.getResultList();
+        session.close();
+        return artists;
     }
 }

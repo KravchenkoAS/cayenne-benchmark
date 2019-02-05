@@ -11,12 +11,14 @@ import org.apache.cayenne.stable.benchmark.event.utils.NoopEventManager;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import persistent.Artist;
 
@@ -32,7 +34,7 @@ public class ServerBenchmark {
     private ObjectContext objectContext;
     private Artist dataObject;
 
-    @Setup
+    @Setup(Level.Trial)
     public void setUp() {
         serverRuntime = ServerRuntime.builder()
                 .addConfig("cayenne-project.xml")
@@ -45,24 +47,29 @@ public class ServerBenchmark {
         dataObject.setId(1);
     }
 
+    @TearDown(Level.Trial)
+    public void tearDown() {
+        serverRuntime.shutdown();
+    }
+
     @Benchmark
     public ServerRuntime createRuntime() {
-        ServerRuntime serverRuntime = ServerRuntime.builder()
+        return ServerRuntime.builder()
                 .addConfig("cayenne-project.xml")
+                .addModule(binder -> ServerModule.contributeProperties(binder)
+                        .put(Constants.SERVER_CONTEXTS_SYNC_PROPERTY, String.valueOf(false)))
+                .addModule(binder -> binder.bind(EventManager.class).toInstance(new NoopEventManager()))
                 .build();
-        return serverRuntime;
     }
 
     @Benchmark
     public ObjectContext createContext() {
-        ObjectContext objectContext = serverRuntime.newContext();
-        return objectContext;
+        return serverRuntime.newContext();
     }
 
     @Benchmark
     public Artist createObject() {
-        Artist artist = objectContext.newObject(Artist.class);
-        return artist;
+        return objectContext.newObject(Artist.class);
     }
 
     @Benchmark

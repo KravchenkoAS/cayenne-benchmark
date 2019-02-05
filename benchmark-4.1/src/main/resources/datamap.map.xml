@@ -45,7 +45,7 @@
 	<db-relationship name="gallery" source="painting" target="gallery">
 		<db-attribute-pair source="GALLERY_ID" target="ID"/>
 	</db-relationship>
-	<obj-relationship name="paintings" source="Artist" target="Painting" deleteRule="Deny" db-relationship-path="paintings"/>
+	<obj-relationship name="paintings" source="Artist" target="Painting" deleteRule="Cascade" db-relationship-path="paintings"/>
 	<obj-relationship name="paintings" source="Gallery" target="Painting" deleteRule="Deny" db-relationship-path="paintings"/>
 	<obj-relationship name="artist" source="Painting" target="Artist" deleteRule="Nullify" db-relationship-path="artist"/>
 	<dbImport xmlns="http://cayenne.apache.org/schema/10/dbimport">

@@ -33,9 +33,15 @@ public class Main {
 //            session.close();
 //        }
         Session session = factory.openSession();
+        List<Artist> artists = session.createQuery("From Artist", Artist.class).getResultList();
+        session.beginTransaction();
+        for(int i = 0; i < 1000; i++) {
+            artists.get(i).setName("test - name" + i);
+            artists.get(i).setDateOfBirth(new Date(i * 1000));
+            session.merge(artists.get(i));
+        }
+        session.getTransaction().commit();
 
-        Stream res = session.createQuery("From Artist").stream();
-        res.forEach(r -> System.out.println(((Artist)r).getName()));
         session.close();
         System.out.println();
     }

@@ -171,6 +171,25 @@ public class UpdateBenchmark {
         }
     }
 
+    @State(Scope.Benchmark)
+    public static class Update1000Objects {
+        Session session;
+        Transaction transaction;
+        List<Artist> artistList;
+
+        @Setup(Level.Invocation)
+        public void setUp() {
+            session = sessionFactory.openSession();
+            artistList = session.createQuery("From Artist", Artist.class)
+                    .getResultList();
+        }
+
+        @TearDown(Level.Invocation)
+        public void tearDown() {
+            session.close();
+        }
+    }
+
     @Benchmark
     public void updateOneObjOneField(ObjectsSetup objectsSetup) {
        updateObj(objectsSetup.session, objectsSetup.artistList, 1, false);
@@ -207,7 +226,7 @@ public class UpdateBenchmark {
     }
 
     @Benchmark
-    public void commit2F1Obj(Setup1Field1Object setup2Field1Object) {
+    public void commit2F1Obj(Setup2Field1Object setup2Field1Object) {
         setup2Field1Object.session.getTransaction().commit();
     }
 
@@ -229,6 +248,13 @@ public class UpdateBenchmark {
     @Benchmark
     public void commit2F1000Obj(Setup2Field1000Object setup2Field1000Object) {
         setup2Field1000Object.session.getTransaction().commit();
+    }
+
+    @Benchmark
+    public void update1000Obj(Update1000Objects update1000Objects) {
+        Transaction transaction = update1000Objects.session.beginTransaction();
+        updateObj(update1000Objects.session, update1000Objects.artistList, 1000, true);
+        transaction.commit();
     }
 
     private static void updateObj(Session session, List<Artist> artists, int num, boolean updateDate) {

@@ -22,6 +22,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import persistent.Artist;
 
@@ -30,22 +31,33 @@ import persistent.Artist;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Fork(2)
+@State(Scope.Benchmark)
 public class SelectQueryBenchmark {
+
+    private static ServerRuntime serverRuntime;
+
+    @Setup(Level.Iteration)
+    public void setUp() {
+        serverRuntime = ServerRuntime.builder()
+                .addConfig("cayenne-project.xml")
+                .addModule(binder -> ServerModule.contributeProperties(binder)
+                        .put(Constants.SERVER_CONTEXTS_SYNC_PROPERTY, String.valueOf(false)))
+                .addModule(binder -> binder.bind(EventManager.class).toInstance(new NoopEventManager()))
+                .build();
+    }
+
+    @TearDown(Level.Iteration)
+    public void tearDown() {
+        serverRuntime.shutdown();
+    }
 
     @State(Scope.Benchmark)
     public static class BaseSetup {
 
-        ServerRuntime serverRuntime;
         ObjectContext objectContext;
 
         @Setup(Level.Invocation)
         public void setUp() {
-            serverRuntime = ServerRuntime.builder()
-                    .addConfig("cayenne-project.xml")
-                    .addModule(binder -> ServerModule.contributeProperties(binder)
-                            .put(Constants.SERVER_CONTEXTS_SYNC_PROPERTY, String.valueOf(false)))
-                    .addModule(binder -> binder.bind(EventManager.class).toInstance(new NoopEventManager()))
-                    .build();
             objectContext = serverRuntime.newContext();
         }
     }

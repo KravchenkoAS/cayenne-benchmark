@@ -23,6 +23,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 @Warmup(iterations = 5, time = 2)
@@ -54,6 +55,11 @@ public class ContextBenchmark {
         snapshotCache = (dataDomain.isSharedCacheEnabled())
                 ? dataDomain.getSharedSnapshotCache()
                 : dataRowStoreFactory.createDataRowStore(dataDomain.getName());
+    }
+
+    @TearDown(Level.Iteration)
+    public void tearDown() {
+        serverRuntime.shutdown();
     }
 
     @Benchmark

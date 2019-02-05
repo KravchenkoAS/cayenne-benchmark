@@ -63,6 +63,30 @@ public class WriteComponentsBenchmark {
 
     }
 
+    @State(Scope.Benchmark)
+    public static class CreationSetup {
+
+        Session session;
+        Transaction transaction;
+
+        @Setup(Level.Invocation)
+        public void setUp() {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            for(int i = 0; i < 1000; i++) {
+                Artist artist = new Artist();
+                artist.setName("Test" + i);
+                artist.setDateOfBirth(new Date(i * 1000 + 1));
+                session.save(artist);
+            }
+        }
+
+        @TearDown(Level.Invocation)
+        public void tearDown() {
+            session.close();
+        }
+    }
+
     @Benchmark
     public Session openSession() {
         return sessionFactory.openSession();
@@ -96,5 +120,18 @@ public class WriteComponentsBenchmark {
         artist.setDateOfBirth(new Date(1000));
         session.save(artist);
         session.getTransaction().commit();
+    }
+
+    @Benchmark
+    public void creationManyObjects() {
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+        for(int i = 0; i < 1000; i++) {
+            Artist artist = new Artist();
+            artist.setName("Test" + i);
+            artist.setDateOfBirth(new Date(i * 1000 + 1));
+            session.save(artist);
+        }
+        transaction.commit();
     }
 }

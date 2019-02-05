@@ -44,8 +44,6 @@ public class ReadComponentsBenchmark {
     public void setUp() {
         serverRuntime = ServerRuntime.builder()
                 .addConfig("cayenne-project.xml")
-                .addModule(binder -> ServerModule.contributeProperties(binder)
-                        .put(Constants.SERVER_CONTEXTS_SYNC_PROPERTY, String.valueOf(false)))
                 .build();
     }
 
@@ -58,7 +56,6 @@ public class ReadComponentsBenchmark {
     public static class QuerySetup {
 
         ObjectContext objectContext;
-        //TODO for 4.2 move back to ObjsectSelect
         SelectQuery<DataRow> query;
         DbAdapter dbAdapter;
 

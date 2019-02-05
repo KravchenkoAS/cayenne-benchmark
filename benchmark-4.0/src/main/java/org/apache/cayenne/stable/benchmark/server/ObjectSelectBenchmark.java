@@ -23,6 +23,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import persistent.Artist;
 
@@ -44,6 +45,11 @@ public class ObjectSelectBenchmark {
                         .put(Constants.SERVER_CONTEXTS_SYNC_PROPERTY, String.valueOf(false)))
                 .addModule(binder -> binder.bind(EventManager.class).toInstance(new NoopEventManager()))
                 .build();
+    }
+
+    @TearDown(Level.Iteration)
+    public void tearDown() {
+        serverRuntime.shutdown();
     }
 
     @State(Scope.Benchmark)
