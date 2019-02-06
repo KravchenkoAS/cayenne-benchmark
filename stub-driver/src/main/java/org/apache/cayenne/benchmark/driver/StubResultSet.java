@@ -30,6 +30,7 @@ public class StubResultSet implements ResultSet {
 
     public StubResultSet() {
         rows.put(0, Collections.singletonMap("ID", new Random().nextInt()));
+        DataObjects.getObjects();
     }
 
     public StubResultSet(Map<Integer, String> fields, Map<Integer, Map<String, Object>> rows) {
@@ -264,7 +265,7 @@ public class StubResultSet implements ResultSet {
 
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        return new RowSetMetaDataImpl();
+        return new StubResultSetMetadata(fields);
     }
 
     @Override

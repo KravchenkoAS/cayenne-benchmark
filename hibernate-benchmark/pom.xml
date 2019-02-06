@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hibernate-bechmark</artifactId>
+    <artifactId>hibernate-benchmark</artifactId>
 
     <dependencies>
         <dependency>

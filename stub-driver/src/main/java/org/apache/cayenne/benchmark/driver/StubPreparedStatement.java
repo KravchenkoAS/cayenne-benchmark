@@ -141,7 +141,7 @@ public class StubPreparedStatement extends StubStatement implements PreparedStat
 
     @Override
     public boolean execute() throws SQLException {
-        return false;
+        return true;
     }
 
     @Override
@@ -408,7 +408,7 @@ public class StubPreparedStatement extends StubStatement implements PreparedStat
 
     @Override
     public ResultSet getResultSet() throws SQLException {
-        return new StubResultSet();
+        return executeQuery(query);
     }
 
     @Override
